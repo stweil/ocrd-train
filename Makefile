@@ -1,3 +1,5 @@
+#!/usr/bin/make
+
 export
 
 ## Make sure that sort always uses the same sort order.
@@ -7,7 +9,7 @@ SHELL := /bin/bash
 LOCAL := $(PWD)/usr
 PATH := $(LOCAL)/bin:$(PATH)
 
-# Path to the .traineddata directory with traineddata suitable for training 
+# Path to the .traineddata directory with traineddata suitable for training
 # (for example from tesseract-ocr/tessdata_best). Default: $(LOCAL)/share/tessdata
 TESSDATA =  $(LOCAL)/share/tessdata
 
@@ -49,8 +51,16 @@ TESSDATA_REPO = _best
 # Ground truth directory. Default: $(GROUND_TRUTH_DIR)
 GROUND_TRUTH_DIR := $(OUTPUT_DIR)-ground-truth
 
+# Epochs. Default: $(EPOCHS)
+EPOCHS :=
+
 # Max iterations. Default: $(MAX_ITERATIONS)
+ifeq ($(EPOCHS),)
 MAX_ITERATIONS := 10000
+else
+MAX_ITERATIONS := $(($(EPOCHS) * $(wc -l < $(OUTPUT_DIR)/list.train))
+MAX_ITERATIONS := $(shell echo $$(($(EPOCHS) * $$(wc -l < $(OUTPUT_DIR)/list.train))))
+endif
 
 # Debug Interval. Default:  $(DEBUG_INTERVAL)
 DEBUG_INTERVAL := 0
@@ -139,6 +149,11 @@ ALL_LSTMF = $(OUTPUT_DIR)/all-lstmf
 # Create unicharset
 unicharset: $(OUTPUT_DIR)/unicharset
 
+# Show information
+.PHONY: info
+info:
+	@echo epoch = $$(wc -l < $(OUTPUT_DIR)/list.train) iterations
+
 # Create lists of lstmf filenames for training and eval
 lists: $(OUTPUT_DIR)/list.train $(OUTPUT_DIR)/list.eval
 
@@ -173,7 +188,7 @@ training: $(OUTPUT_DIR).traineddata
 
 $(ALL_GT): $(shell find $(GROUND_TRUTH_DIR) -name '*.gt.txt')
 	@mkdir -p $(OUTPUT_DIR)
-	find $(GROUND_TRUTH_DIR) -name '*.gt.txt' | xargs cat | sort | uniq > "$@"
+	find $(GROUND_TRUTH_DIR) -name '*.gt.txt' -print0 | xargs -0 cat | sort | uniq > "$@"
 
 .PRECIOUS: %.box
 %.box: %.png %.gt.txt
