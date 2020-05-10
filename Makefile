@@ -23,7 +23,7 @@ OUTPUT_DIR = data/$(MODEL_NAME)
 WORDLIST_FILE := $(OUTPUT_DIR)/$(MODEL_NAME).wordlist
 
 # Optional Numbers file for number patterns dawg. Default: $(NUMBERS_FILE)
-NUMBERS_FILE := $(OUTPUT_DIR)/$(MODEL_NAME).numbers
+NUMBERS_FILE := $(OUTPUT_DIR)/$(MODEL_NAME).number
 
 # Optional Punc file for Punctuation dawg. Default: $(PUNC_FILE)
 PUNC_FILE := $(OUTPUT_DIR)/$(MODEL_NAME).punc
@@ -174,9 +174,9 @@ $(OUTPUT_DIR)/list.train: $(ALL_LSTMF)
 ifdef START_MODEL
 $(OUTPUT_DIR)/unicharset: $(ALL_GT)
 	@mkdir -p data/$(START_MODEL)
-	combine_tessdata -u $(TESSDATA)/$(START_MODEL).traineddata  data/$(START_MODEL)/$(MODEL_NAME)
+	combine_tessdata -u $(TESSDATA)/$(START_MODEL).traineddata  $(OUTPUT_DIR)/$(MODEL_NAME)
 	unicharset_extractor --output_unicharset "$(OUTPUT_DIR)/my.unicharset" --norm_mode $(NORM_MODE) "$(ALL_GT)"
-	merge_unicharsets data/$(START_MODEL)/$(MODEL_NAME).lstm-unicharset $(OUTPUT_DIR)/my.unicharset  "$@"
+	merge_unicharsets $(OUTPUT_DIR)/$(MODEL_NAME).lstm-unicharset $(OUTPUT_DIR)/my.unicharset  "$@"
 else
 $(OUTPUT_DIR)/unicharset: $(ALL_GT)
 	@mkdir -p $(OUTPUT_DIR)
@@ -265,7 +265,7 @@ $(LAST_CHECKPOINT): unicharset lists $(PROTO_MODEL)
 	  --debug_interval $(DEBUG_INTERVAL) \
 	  --traineddata $(PROTO_MODEL) \
 	  --old_traineddata $(TESSDATA)/$(START_MODEL).traineddata \
-	  --continue_from data/$(START_MODEL)/$(MODEL_NAME).lstm \
+	  --continue_from $(OUTPUT_DIR)/$(MODEL_NAME).lstm \
 	  --model_output $(OUTPUT_DIR)/checkpoints/$(MODEL_NAME) \
 	  --train_listfile $(OUTPUT_DIR)/list.train \
 	  --eval_listfile $(OUTPUT_DIR)/list.eval \
