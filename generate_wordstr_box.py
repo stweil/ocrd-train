@@ -51,7 +51,6 @@ with io.open(args.txt, "r", encoding='utf-8') as f:
 for line in lines:
     line = unicodedata.normalize('NFC', line.strip())
     if line:
-        if args.rtl:
-            line = bidi.algorithm.get_display(line)
+        line = bidi.algorithm.get_display(line)
         print("WordStr 0 0 %d %d 0 #%s" % (width, height, line))
         print("\t 0 0 %d %d 0" % (width, height))
